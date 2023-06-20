@@ -1,0 +1,12 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+license="LGPL-v3"
+
+[[mods]]
+modId="keepcuriosinventory"
+version="${file.jarVersion}"
+displayName="KeepCuriosInventory"
+authors="Team Potato"
+description='''
+
+'''

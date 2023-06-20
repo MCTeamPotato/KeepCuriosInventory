@@ -1,0 +1,13 @@
+{
+    "required": true,
+    "minVersion": "0.8",
+    "package": "com.teampotato.keepcuriosinventory.mixin",
+    "compatibilityLevel": "JAVA_8",
+    "refmap": "keepcuriosinventory.refmap.json",
+    "injectors": {
+        "defaultRequire": 1
+    },
+    "mixins": [
+        "MixinCuriosEventHandler"
+    ]
+}
