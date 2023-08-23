@@ -16,14 +16,14 @@ apply plugin: 'org.parchmentmc.librarian.forgegradle'
 apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
-version = '0.0.1'
+version = '1.18.2-0.0.1'
 group = 'com.teampotato.keepcuriosinventory'
 archivesBaseName = 'keepcuriosinventory'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 minecraft {
-    mappings channel: 'parchment', version: '2022.08.14-1.19.2'
+    mappings channel: 'parchment', version: '2022.11.06-1.18.2'
     runs {
         client {
             workingDirectory project.file('run')
@@ -76,9 +76,9 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.2-43.2.14'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.2.10'
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-    implementation fg.deobf("curse.maven:curios-309927:4523009")
+    implementation fg.deobf("curse.maven:curios-309927:4590652")
 }
 
 mixin {

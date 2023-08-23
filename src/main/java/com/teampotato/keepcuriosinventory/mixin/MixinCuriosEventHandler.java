@@ -39,7 +39,7 @@ public abstract class MixinCuriosEventHandler {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void playerDrops(LivingDropsEvent evt) {
 
-        LivingEntity livingEntity = evt.getEntity();
+        LivingEntity livingEntity = evt.getEntityLiving();
 
         if (!livingEntity.isSpectator()) {
 
