@@ -13,10 +13,9 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.parchmentmc.librarian.forgegradle'
-apply plugin: 'maven-publish'
 apply plugin: 'org.spongepowered.mixin'
 
-version = '1.18.2-0.0.1'
+version = '1.18.2-0.0.2'
 group = 'com.teampotato.keepcuriosinventory'
 archivesBaseName = 'keepcuriosinventory'
 
@@ -68,17 +67,14 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
     maven {
-        url "https://cursemaven.com"
-        content {
-            includeGroup "curse.maven"
-        }
+        url = "https://maven.theillusivec4.top/"
     }
 }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.18.2-40.2.10'
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-    implementation fg.deobf("curse.maven:curios-309927:4590652")
+    compileOnly fg.deobf("top.theillusivec4.curios:curios-forge:1.18.2-5.0.9.1")
 }
 
 mixin {
@@ -99,16 +95,3 @@ jar {
 }
 
 jar.finalizedBy('reobfJar') 
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
-        }
-    }
-}
