@@ -1,5 +1,7 @@
 package com.teampotato.keepcuriosinventory.mixin;
 
+import com.teampotato.keepcuriosinventory.KeepCuriosInventory;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.item.ItemStack;
@@ -21,12 +23,55 @@ import top.theillusivec4.curios.common.event.CuriosEventHandler;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 @Mixin(value = CuriosEventHandler.class, remap = false)
 public abstract class MixinCuriosEventHandler {
+
     @Shadow
-    private static void handleDrops(LivingEntity livingEntity, List<Tuple<Predicate<ItemStack>, ICurio.DropRule>> dropRules, IDynamicStackHandler stacks, Collection<ItemEntity> drops, boolean keepInventory) {}
+    private static ItemEntity getDroppedItem(ItemStack droppedItem, LivingEntity livingEntity) {
+        throw new RuntimeException();
+    }
+    /**
+     * @author Kasualix
+     * @reason impl blacklist
+     */
+    @Overwrite
+    private static void handleDrops(LivingEntity livingEntity,
+                                    List<Tuple<Predicate<ItemStack>, ICurio.DropRule>> dropRules,
+                                    IDynamicStackHandler stacks, Collection<ItemEntity> drops,
+                                    boolean keepInventory) {
+        for (int i = 0; i < stacks.getSlots(); i++) {
+            ItemStack stack = stacks.getStackInSlot(i);
+
+            if (!stack.isEmpty()) {
+                ICurio.DropRule dropRuleOverride = null;
+
+                for (Tuple<Predicate<ItemStack>, ICurio.DropRule> override : dropRules) {
+
+                    if (override.getA().test(stack)) {
+                        dropRuleOverride = override.getB();
+                    }
+                }
+                ICurio.DropRule dropRule = dropRuleOverride != null ? dropRuleOverride
+                        : CuriosApi.getCuriosHelper().getCurio(stack)
+                        .map(curio -> curio.getDropRule(livingEntity)).orElse(ICurio.DropRule.DEFAULT);
+
+                if ((dropRule == ICurio.DropRule.DEFAULT && keepInventory) || dropRule == ICurio.DropRule.ALWAYS_KEEP) {
+                    if (!KeepCuriosInventory.curiosBlacklist.get().contains(
+                            Objects.requireNonNull(stack.getItem().getRegistryName()).toString())){
+                        continue;
+                    }
+                }
+
+                if (!EnchantmentHelper.hasVanishingCurse(stack) && dropRule != ICurio.DropRule.DESTROY) {
+                    drops.add(getDroppedItem(stack, livingEntity));
+                }
+                stacks.setStackInSlot(i, ItemStack.EMPTY);
+            }
+        }
+    }
 
     /**
      * @author Kasualix
