@@ -19,9 +19,12 @@ import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.event.CurioDropsEvent;
 import top.theillusivec4.curios.api.event.DropRulesEvent;
+import top.theillusivec4.curios.api.type.ISlotType;
 import top.theillusivec4.curios.api.type.capability.ICurio;
 import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
 import top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler;
+import top.theillusivec4.curios.common.CuriosConfig;
+import top.theillusivec4.curios.common.data.CuriosSlotManager;
 import top.theillusivec4.curios.common.event.CuriosEventHandler;
 
 import java.util.*;
@@ -59,9 +62,14 @@ public abstract class MixinCuriosEventHandler {
                     }
                 }
                 ICurio.DropRule dropRule = dropRuleOverride != null ? dropRuleOverride :
-                        CuriosApi.getCuriosHelper().getCurio(stack).map(curio -> curio
+                        CuriosApi.getCurio(stack).map(curio -> curio
                                 .getDropRule(slotContext, evt.getSource(), evt.getLootingLevel(),
                                         evt.isRecentlyHit())).orElse(ICurio.DropRule.DEFAULT);
+
+                if (dropRule == ICurio.DropRule.DEFAULT) {
+                    dropRule = CuriosSlotManager.INSTANCE.getSlot(identifier).map(ISlotType::getDropRule)
+                            .orElse(ICurio.DropRule.DEFAULT);
+                }
 
                 if ((dropRule == ICurio.DropRule.DEFAULT && keepInventory) || dropRule == ICurio.DropRule.ALWAYS_KEEP) {
                     if (!KeepCuriosInventory.curiosBlacklist.get().contains(
@@ -90,7 +98,7 @@ public abstract class MixinCuriosEventHandler {
 
         if (!livingEntity.isSpectator()) {
 
-            CuriosApi.getCuriosHelper().getCuriosHandler(livingEntity).ifPresent(handler -> {
+            CuriosApi.getCuriosInventory(livingEntity).ifPresent(handler -> {
                 Collection<ItemEntity> drops = evt.getDrops();
                 Collection<ItemEntity> curioDrops = new ArrayList<>();
                 Map<String, ICurioStacksHandler> curios = handler.getCurios();
@@ -102,11 +110,15 @@ public abstract class MixinCuriosEventHandler {
 
                 boolean keepInventory = true;
 
+                if (CuriosConfig.SERVER.keepCurios.get() != CuriosConfig.KeepCurios.DEFAULT) {
+                    keepInventory = CuriosConfig.SERVER.keepCurios.get() == CuriosConfig.KeepCurios.ON;
+                }
+                boolean finalKeepInventory = keepInventory;
                 curios.forEach((id, stacksHandler) -> {
                     handleDrops(id, livingEntity, dropRules, stacksHandler.getRenders(),
-                            stacksHandler.getStacks(), false, curioDrops, keepInventory, evt);
+                            stacksHandler.getStacks(), false, curioDrops, finalKeepInventory, evt);
                     handleDrops(id, livingEntity, dropRules, stacksHandler.getRenders(),
-                            stacksHandler.getCosmeticStacks(), true, curioDrops, keepInventory, evt);
+                            stacksHandler.getCosmeticStacks(), true, curioDrops, finalKeepInventory, evt);
                 });
 
                 if (!MinecraftForge.EVENT_BUS.post(
