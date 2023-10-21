@@ -1,6 +1,6 @@
 package com.teampotato.keepcuriosinventory;
 
-import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -18,7 +18,7 @@ public class KeepCuriosInventory {
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
         builder.push("KeepCuriosInventory");
-        curiosBlacklist = builder.comment("Items here will always drop.").defineList("curiosBlacklist", Lists.newArrayList(), o -> o instanceof String);
+        curiosBlacklist = builder.comment("Items here will always drop.").defineList("curiosBlacklist", new ObjectArrayList<>(), o -> o instanceof String);
         builder.pop();
         config = builder.build();
     }

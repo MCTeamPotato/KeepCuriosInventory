@@ -23,7 +23,6 @@ import top.theillusivec4.curios.api.type.ISlotType;
 import top.theillusivec4.curios.api.type.capability.ICurio;
 import top.theillusivec4.curios.api.type.inventory.ICurioStacksHandler;
 import top.theillusivec4.curios.api.type.inventory.IDynamicStackHandler;
-import top.theillusivec4.curios.common.CuriosConfig;
 import top.theillusivec4.curios.common.data.CuriosSlotManager;
 import top.theillusivec4.curios.common.event.CuriosEventHandler;
 
@@ -110,15 +109,11 @@ public abstract class MixinCuriosEventHandler {
 
                 boolean keepInventory = true;
 
-                if (CuriosConfig.SERVER.keepCurios.get() != CuriosConfig.KeepCurios.DEFAULT) {
-                    keepInventory = CuriosConfig.SERVER.keepCurios.get() == CuriosConfig.KeepCurios.ON;
-                }
-                boolean finalKeepInventory = keepInventory;
                 curios.forEach((id, stacksHandler) -> {
                     handleDrops(id, livingEntity, dropRules, stacksHandler.getRenders(),
-                            stacksHandler.getStacks(), false, curioDrops, finalKeepInventory, evt);
+                            stacksHandler.getStacks(), false, curioDrops, keepInventory, evt);
                     handleDrops(id, livingEntity, dropRules, stacksHandler.getRenders(),
-                            stacksHandler.getCosmeticStacks(), true, curioDrops, finalKeepInventory, evt);
+                            stacksHandler.getCosmeticStacks(), true, curioDrops, keepInventory, evt);
                 });
 
                 if (!MinecraftForge.EVENT_BUS.post(
